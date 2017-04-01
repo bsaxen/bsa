@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="sxndata.css" title="Variant Duo" media="screen,projection" />
     <title>BSA Universe</title>
 </head>
-<body>
+<body style="background-color:#38E58E;vertical-align:middle;text-align:center; ">
 <form action="index.php?action=fetch" id="bsakey" method="post">
   <input type="hidden" name="action" value="fetch">
   <input type="text" name="key">
@@ -24,13 +24,15 @@
 
 <?php
 
+$pswd = "amazon";
+
 // Hostname: 127.0.0.1, username: your_user, password: your_pass, db: sakila
-$mysqli = new mysqli('127.0.0.1', 'root', 'amazon','bsa');
+$mysqli = new mysqli('127.0.0.1', 'root', $pswd,'bsa');
 if ($mysqli->connect_errno) 
 {
     echo "<br>1Errno: " . $mysqli->connect_errno . "\n";
     echo "<br>2Error: " . $mysqli->connect_error . "\n";
-    $mysqli = new mysqli('127.0.0.1', 'root', 'amazon') or die(".....");
+    $mysqli = new mysqli('127.0.0.1', 'root', $pswd) or die(".....");
     $sql = "CREATE DATABASE bsa";
     if (!$result = $mysqli->query($sql)) 
     {
