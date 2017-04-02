@@ -8,10 +8,11 @@
     <link rel="stylesheet" type="text/css" href="sxndata.css" title="Variant Duo" media="screen,projection" />
     <title>BSA Universe</title>
 </head>
-<body style="background-color:#38E58E;vertical-align:middle;text-align:center; ">
-<form action="index.php?action=fetch" id="bsakey" method="post">
-  <input type="hidden" name="action" value="fetch">
+<body style="background-color:#5D6D7E;vertical-align:middle;text-align:center; ">
+<form action="index.php?action=search" id="bsakey" method="post">
+  <input type="hidden" name="action" value="search">
   <input type="text" name="key">
+  <input type="checkbox" name="logic" value="or">
   <br><input type="submit">
 </form>
 <form action="index.php?action=store" id="bsacom" method="post">
@@ -23,10 +24,13 @@
 
 
 <?php
-
+//=============================================================
 $pswd = "amazon";
+//=============================================================
 
-// Hostname: 127.0.0.1, username: your_user, password: your_pass, db: sakila
+//=============================================================
+// Connect and open database - create if non-exist
+//=============================================================
 $mysqli = new mysqli('127.0.0.1', 'root', $pswd,'bsa');
 if ($mysqli->connect_errno) 
 {
@@ -45,7 +49,6 @@ if ($mysqli->connect_errno)
     {
         echo("<br>Database created and initated<br>");
         $mysqli->select_db("bsa");
-        //$mysqli = new mysqli('127.0.0.1', 'root', 'amazon', 'bsa');
         $sql = sprintf("CREATE TABLE universe (
         id INT(9) UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
         data TEXT,
@@ -68,14 +71,41 @@ if ($mysqli->connect_errno)
 $mysqli->select_db("bsa");
 
 
-
+//=============================================================
+// GET and POST
+//=============================================================
 $action = $_GET['action'];
-if($action == 'fetch')
+
+//=============================================================
+// Search
+//=============================================================
+if($action == 'search')
 {
+    $logic = $_POST['logic'];
     $key = $_POST['key'];
-    echo("<b>Search:</b> $key<br>");
-    $sql = "SELECT * FROM universe WHERE INSTR(data,'{$key}') > 0";
-    //$sql = "SELECT data, owner, ts FROM universe";
+    $pieces = explode(" ", $key);
+
+    //$sql = "SELECT * FROM universe WHERE INSTR(data,'{$key}') > 0";
+    $sql = "SELECT * FROM universe WHERE ";
+    foreach($pieces as $i =>$key) 
+    {
+       $i >0;
+       if($logic == 'or')
+            echo("<b>Search-OR:</b> $key<br>");
+        else
+            echo("<b>Search-AND:</b> $key<br>");
+        
+       if($logic == 'or')
+            $sql = $sql."INSTR(data,'{$key}') > 0 OR ";
+       else
+            $sql = $sql."INSTR(data,'{$key}') > 0 AND ";
+    }
+    if($logic == 'or')
+        $sql = $sql."INSTR(data,'123456789') > 0";
+    else
+        $sql = $sql."INSTR(data,'') > 0";
+
+    //echo "SQL: " . $sql . "\n";
     if (!$result = $mysqli->query($sql)) 
     {
         echo "Query: " . $sql . "\n";
@@ -104,6 +134,9 @@ if($action == 'fetch')
     $result->free();
 }
 
+//=============================================================
+// Store data
+//=============================================================
 if($action == 'store')
 {
     $com = $_POST['com'];
@@ -123,6 +156,9 @@ if($action == 'store')
        }   
 }
 
+//=============================================================
+// Delete data
+//=============================================================
 if($action == 'delete')
 {
     $id = $_GET['id'];
